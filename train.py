@@ -40,18 +40,6 @@ def execute(config):
 
     wandb.watch(model)
 
-    loader = DataLoader(train_dataset, batch_size=config['bs'], shuffle=False)
-    for step, data in enumerate(loader):
-        print('profile', step, flush=True)
-        with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available(), record_shapes=True) as prof:
-            data = data.to(device)
-            pred = model(data.z, data.pos, data.batch)
-            mse = (pred.view(-1) - data.y[:, config['target']]).pow(2)
-            mse.mean().backward()
-        if step == 5:
-            prof.export_chrome_trace(f"{datetime.datetime.now()}.json")
-            break
-
     # modules = [model.embedding, model.radial] + list(model.layers) + [model.atomref]
     # lrs = [0.1, 0.01] + [1] * len(model.layers) + [0.1]
     # param_groups = []
@@ -111,6 +99,19 @@ def execute(config):
                     f'mae={units * torch.cat(errs)[-200:].abs().mean():.5f} '
                     f'lr={min(x["lr"] for x in optim.param_groups):.1e}-{max(x["lr"] for x in optim.param_groups):.1e}]'
                 ), flush=True)
+
+        if epoch == 0:
+            with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available(), record_shapes=True) as prof:
+                for step, data in enumerate(loader):
+                    data = data.to(device)
+                    pred = model(data.z, data.pos, data.batch)
+                    mse = (pred.view(-1) - data.y[:, config['target']]).pow(2)
+                    mse.mean().backward()
+                    if step == 1:
+                        break
+            prof.export_chrome_trace(f"{datetime.datetime.now()}.json")
+            break
+
 
         train_err = torch.cat(errs)
 
