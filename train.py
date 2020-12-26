@@ -110,8 +110,6 @@ def execute(config):
                     if step == 1:
                         break
             prof.export_chrome_trace(f"{datetime.datetime.now()}.json")
-            break
-
 
         train_err = torch.cat(errs)
 

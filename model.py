@@ -37,7 +37,6 @@ class Network(torch.nn.Module):
             cutoff=10.0,
             rad_gaussians=50,
             rad_hs=(128, 128),
-            num_filters=8,
             num_neighbors=20,
             num_atoms=20,
             mean=None,
