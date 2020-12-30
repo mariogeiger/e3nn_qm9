@@ -60,18 +60,18 @@ class Network(torch.nn.Module):
         # self.irreps_edge = o3.Irreps([(25, l, (-1)**l) for l in range(lmax + 1)])
         self.irreps_edge = self.irreps_sh
 
-        self.mul = TensorProduct(
-            [(25, "0e", 1.0)],
-            [(1, ir, 1.0) for _, ir in self.irreps_sh],
-            [(25, ir, 1.0) for _, ir in self.irreps_sh],
-            [
-                (0, l, l, "uvu", False, 1.0)
-                for l in range(lmax + 1)
-            ]
-        )
+        # self.mul = TensorProduct(
+        #     [(25, "0e", 1.0)],
+        #     [(1, ir, 1.0) for _, ir in self.irreps_sh],
+        #     [(25, ir, 1.0) for _, ir in self.irreps_sh],
+        #     [
+        #         (0, l, l, "uvu", False, 1.0)
+        #         for l in range(lmax + 1)
+        #     ]
+        # )
+        irreps = o3.Irreps([(muls[0], (0, 1)), (muls[1], (1, -1)), (muls[2], (2, 1))])
+        self.mul_node = FullyConnectedTensorProduct([(5, "0e")], self.irreps_sh, irreps)
 
-
-        irreps = self.irreps_sh
         modules = []
         for _ in range(num_layers):
             act = make_gated_block(irreps, muls, self.irreps_sh)
@@ -112,6 +112,7 @@ class Network(torch.nn.Module):
 
         h = scatter(edge_sh, edge_src, dim=0, dim_size=len(pos))
         h[:, 0] = 1
+        h = self.mul_node(node_z, h)
 
         print_std('h', h)
 
