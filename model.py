@@ -217,17 +217,17 @@ class Conv(torch.nn.Module):
         # self.lin2 = Linear(irreps, self.irreps_out, internal_weights=True, shared_weights=True)
         self.lin2 = FullyConnectedTensorProduct(irreps, o3.Irreps("5x0e"), self.irreps_out)
 
-    def forward(self, x, z, edge_src, edge_dst, edge_query, edge_sh):
+    def forward(self, x, z, edge_src, edge_dst, edge_len_emb, edge_attr):
         with torch.autograd.profiler.record_function("Conv"):
             # x = [num_atoms, dim(irreps_in)]
             s = self.si(x, z)
 
             x = self.lin1(x, z)
 
-            weight = edge_query @ self.tp_weight
+            weight = edge_len_emb @ self.tp_weight
 
-            # edge_sh are divided by sqrt(num_neighbors)
-            edge_x = self.tp(x[edge_src], edge_sh, weight)
+            # edge_attr are divided by sqrt(num_neighbors)
+            edge_x = self.tp(x[edge_src], edge_attr, weight)
             x = scatter(edge_x, edge_dst, dim=0, dim_size=len(x))
 
             x = self.lin2(x, z)
