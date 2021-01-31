@@ -26,6 +26,7 @@ def execute(config):
 
     _, datasets = SchNet.from_qm9_pretrained(path, dataset, config['target'])
     train_dataset, val_dataset, _test_dataset = datasets
+    train_dataset = train_dataset[:config['ptr']]
 
     model = Network(
         muls=(config['mul0'], config['mul1'], config['mul2']),
@@ -193,11 +194,12 @@ def main():
     parser.add_argument("--std", type=float, default=1)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--wall", type=int, default=(3 * 24 - 1) * 3600)
+    parser.add_argument("--ptr", type=int, default=97729)
 
     args = parser.parse_args()
 
     wandb.login()
-    wandb.init(project=f"qm9" + (f" {args.target}" if args.target != 7 else ""), config=args.__dict__)
+    wandb.init(project="qm9" + (f" {args.target}" if args.target != 7 else ""), config=args.__dict__)
     config = dict(wandb.config)
     print(config)
 

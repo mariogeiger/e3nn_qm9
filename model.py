@@ -1,9 +1,10 @@
 from math import pi
 
 import torch
-from e3nn_core import o3
-from e3nn_core.math import gaussian_basis_projection, swish
-from e3nn_core.nn import FullyConnectedNet, Gate, TensorProduct, FullyConnectedTensorProduct
+from e3nn import o3
+from e3nn.math import soft_one_hot_linspace, swish
+from e3nn.o3 import TensorProduct, FullyConnectedTensorProduct
+from e3nn.nn import Gate, FullyConnectedNet
 from torch_geometric.nn import radius_graph
 from torch_scatter import scatter
 
@@ -43,7 +44,7 @@ class Network(torch.nn.Module):
             std=None,
             scale=None,
             atomref=None
-        ):
+                ):
         super().__init__()
 
         self.cutoff = cutoff
@@ -94,9 +95,9 @@ class Network(torch.nn.Module):
 
         edge_src, edge_dst = radius_graph(pos, r=self.cutoff, batch=batch, max_num_neighbors=1000)
         edge_vec = pos[edge_src] - pos[edge_dst]
-        edge_sh = o3.spherical_harmonics(self.irreps_sh, edge_vec, 'component', normalize=True)
+        edge_sh = o3.spherical_harmonics(self.irreps_sh, edge_vec, True, 'component')
         edge_len = edge_vec.norm(dim=1)
-        edge_len_emb = self.radial(gaussian_basis_projection(edge_len, 0.0, self.cutoff, self.rad_gaussians))
+        edge_len_emb = self.radial(soft_one_hot_linspace(edge_len, 0.0, self.cutoff, self.rad_gaussians))
         edge_c = (pi * edge_len / self.cutoff).cos().add(1).div(2)
         edge_sh = edge_c[:, None] * edge_sh / self.num_neighbors**0.5
 
