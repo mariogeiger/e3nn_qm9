@@ -12,7 +12,7 @@ from torch_geometric.data import DataLoader
 from torch_geometric.datasets import QM9
 from torch_geometric.nn import SchNet
 
-from model import Network
+from model2 import Network
 
 
 def execute(config):
@@ -32,9 +32,10 @@ def execute(config):
         muls=(config['mul0'], config['mul1'], config['mul2']),
         lmax=config['lmax'],
         num_layers=config['num_layers'],
-        rad_gaussians=config['rad_gaussians'],
-        rad_hs=(config['rad_h'],) * config['rad_layers'],
-        mean=config['mean'], std=config['std'],
+        number_of_basis=config['rad_gaussians'],
+        fc_neurons=(config['rad_h'],) * config['rad_layers'],
+        mean=config['mean'],
+        std=config['std'],
         atomref=dataset.atomref(config['target']),
     )
     model = model.to(device)
