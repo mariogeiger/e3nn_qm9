@@ -102,15 +102,32 @@ def execute(config):
                 ), flush=True)
 
         if epoch == 0:
-            with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available(), record_shapes=True) as prof:
+            called_num = [0]
+
+            def trace_handler(p):
+                print(p.key_averages().table(sort_by="self_cuda_time_total", row_limit=-1))
+                p.export_chrome_trace(f"{datetime.datetime.now()}_{called_num[0]}.json")
+                called_num[0] += 1
+
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA],
+                schedule=torch.profiler.schedule(
+                    wait=1,
+                    warmup=1,
+                    active=1),
+                on_trace_ready=trace_handler
+            ) as prof:
+
                 for step, data in enumerate(loader):
                     data = data.to(device)
                     pred = model(data.z, data.pos, data.batch)
                     mse = (pred.view(-1) - data.y[:, config['target']]).pow(2)
                     mse.mean().backward()
-                    if step == 1:
+                    prof.step()
+                    if step == 3:
                         break
-            prof.export_chrome_trace(f"{datetime.datetime.now()}.json")
 
         train_err = torch.cat(errs)
 
