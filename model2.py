@@ -15,7 +15,7 @@ class Network(torch.nn.Module):
         num_layers=3,
         max_radius=10.0,
         number_of_basis=50,
-        fc_neurons=(128, 128),
+        fc_neurons=[128, 128],
         num_neighbors=20,
         num_nodes=20,
         mean=None,
@@ -49,7 +49,7 @@ class Network(torch.nn.Module):
             irreps_node_attr="5x0e",
             irreps_edge_attr=o3.Irreps.spherical_harmonics(lmax),
             layers=num_layers,
-            fc_neurons=(self.number_of_basis,) + fc_neurons,
+            fc_neurons=[self.number_of_basis] + fc_neurons,
             num_neighbors=num_neighbors,
         )
 

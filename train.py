@@ -33,7 +33,7 @@ def execute(config):
         lmax=config['lmax'],
         num_layers=config['num_layers'],
         number_of_basis=config['rad_gaussians'],
-        fc_neurons=(config['rad_h'],) * config['rad_layers'],
+        fc_neurons=[config['rad_h']] * config['rad_layers'],
         mean=config['mean'],
         std=config['std'],
         atomref=dataset.atomref(config['target']),
