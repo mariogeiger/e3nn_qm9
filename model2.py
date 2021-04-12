@@ -88,12 +88,12 @@ class Network(torch.nn.Module):
         node_attr = torch.nn.functional.one_hot(node_attr, 5).mul(5**0.5)
 
         node_outputs = self.mp(
-            node_input=node_input,
+            node_features=node_input,
             node_attr=node_attr,
             edge_src=edge_src,
             edge_dst=edge_dst,
             edge_attr=edge_sh,
-            edge_length_embedding=edge_length_embedding
+            edge_scalars=edge_length_embedding
         )
 
         node_outputs = node_outputs[:, 0] + node_outputs[:, 1].pow(2).mul(0.5)
