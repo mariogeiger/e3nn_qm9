@@ -19,12 +19,12 @@ class Network(torch.nn.Module):
         self,
         muls,
         sh_lmax,
-        num_layers=3,
-        max_radius=10.0,
-        num_basis=50,
-        fc_neurons=[128, 128],
-        num_neighbors=20,
-        num_nodes=20,
+        num_layers,
+        max_radius,
+        num_basis,
+        fc_neurons,
+        num_neighbors,
+        num_nodes,
         atomref=None,
     ) -> None:
         super().__init__()
@@ -233,15 +233,15 @@ def execute(config):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mul0", type=int, default=256)
-    parser.add_argument("--mul1", type=int, default=16)
-    parser.add_argument("--mul2", type=int, default=0)
-    parser.add_argument("--shlmax", type=int, default=1)
-    parser.add_argument("--num_layers", type=int, default=3)
+    parser.add_argument("--mul0", type=int, default=256)  # 16 to 1024
+    parser.add_argument("--mul1", type=int, default=16)   # 8 to 1024
+    parser.add_argument("--mul2", type=int, default=0)    # 0 to 512
+    parser.add_argument("--shlmax", type=int, default=1)  # 1 to 3
+    parser.add_argument("--num_layers", type=int, default=3)      # 2 to 5
     parser.add_argument("--max_radius", type=float, default=10.0)
-    parser.add_argument("--num_basis", type=int, default=50)
-    parser.add_argument("--radial_num_neurons", type=int, default=128)
-    parser.add_argument("--radial_num_layers", type=int, default=2)
+    parser.add_argument("--num_basis", type=int, default=50)      # 5 to 100
+    parser.add_argument("--radial_num_neurons", type=int, default=128)  # 8 to 1024
+    parser.add_argument("--radial_num_layers", type=int, default=2)  # 0 to 5
 
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--bs", type=int, default=50)
